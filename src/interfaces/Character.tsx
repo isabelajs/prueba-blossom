@@ -7,14 +7,26 @@ export interface CharacterInterface {
   gender: string;
   origin: {
     name: string;
-    url: string;
   };
   location: {
     name: string;
-    url: string;
   };
   image: string;
-  episode: string[];
-  url: string;
+  episode: Array<{
+    id: string;
+    name: string;
+  }>;
   created: string;
+}
+
+export interface PaginationInfo {
+  count: number;
+  pages: number;
+  next: number | null;
+  prev: number | null;
+}
+
+export interface CharactersResponse {
+  info: PaginationInfo;
+  results: CharacterInterface[];
 }
