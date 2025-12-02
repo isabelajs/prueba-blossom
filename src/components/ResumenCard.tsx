@@ -23,7 +23,7 @@ export default function ResumenCard({
   return (
     <Link
       to={id ? `/character/${id}` : "#"}
-      className={`flex items-center gap-4 py-4 hover:bg-gray-50 transition-colors duration-200 ${className}`}
+      className={`flex items-center gap-4 py-4 hover:bg-gray-50 transition-colors duration-200 lg:px-5 ${className}`}
     >
       {/* Avatar */}
       {imageUrl && (
@@ -51,6 +51,7 @@ export default function ResumenCard({
         <ButtonStarred
           isStarred={isStarred}
           onToggleStar={() => onToggleStar(id)}
+          classNameButton={`${isStarred ? 'bg-white' : 'transparent'}`}
         />
       )}
     </Link>
