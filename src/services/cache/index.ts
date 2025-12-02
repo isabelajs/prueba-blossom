@@ -1,0 +1,2 @@
+export { searchCache } from "./SearchCache";
+
