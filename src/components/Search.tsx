@@ -6,12 +6,14 @@ interface SearchProps {
   onSearch?: (value: string) => void;
   onFilter?: () => void;
   placeholder?: string;
+  isFilterOpen?: boolean;
 }
 
 const Search = ({
   onSearch,
   onFilter,
   placeholder = "Search or filter results",
+  isFilterOpen = false,
 }: SearchProps) => {
   const [searchValue, setSearchValue] = useState("");
 
@@ -40,6 +42,11 @@ const Search = ({
       <button
         onClick={onFilter}
         aria-label="Filter options"
+        className={`p-1 rounded-lg transition-colors ${
+          isFilterOpen 
+            ? "bg-primary-100" 
+            : "hover:bg-gray-200"
+        }`}
       >
         <PiSliders className="text-primary-600" size={24} />
       </button>
