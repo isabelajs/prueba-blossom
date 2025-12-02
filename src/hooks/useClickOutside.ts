@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Hook para detectar clicks fuera de un elemento
- * Útil para cerrar modals, dropdowns, tooltips, etc.
+ * Hook to detect clicks outside a given element.
+ * Useful for closing modals, dropdowns, tooltips, etc.
  *
- * @param handler - Función a ejecutar cuando se hace click fuera
- * @param enabled - Si el hook está activo (default: true)
+ * @param handler - Function to execute when a click occurs outside the element
+ * @param enabled - Whether the hook is active (default: true)
  */
 export const useClickOutside = <T extends HTMLElement = HTMLElement>(
   handler: () => void,
