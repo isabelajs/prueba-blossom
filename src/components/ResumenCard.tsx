@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+import ButtonStarred from "./ButtonStarred";
 
 interface ResumenCardProps {
   id?: number;
@@ -20,14 +20,6 @@ export default function ResumenCard({
   onToggleStar,
   className = "",
 }: ResumenCardProps) {
-  const handleStarClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onToggleStar && id !== undefined) {
-      onToggleStar(id);
-    }
-  };
-
   return (
     <Link
       to={id ? `/character/${id}` : "#"}
@@ -49,25 +41,18 @@ export default function ResumenCard({
         <h3 className="text-base leading-6 font-semibold text-gray-900 truncate">
           {title}
         </h3>
-        <p className="text-base leading-6 font-normal text-gray-500">{description}</p>
+        <p className="text-base leading-6 font-normal text-gray-500">
+          {description}
+        </p>
       </div>
 
       {/* Star Icon */}
       {onToggleStar && id !== undefined && (
-        <button
-          onClick={handleStarClick}
-          className="shrink-0 p-2 hover:bg-gray-100 rounded-full transition-colors"
-          aria-label={isStarred ? "Unstar character" : "Star character"}
-        >
-          {isStarred ? (
-            <AiFillHeart className="text-secondary-600" size={24} />
-          ) : (
-            <AiOutlineHeart className="text-gray-300" size={24} />
-          )}
-        </button>
+        <ButtonStarred
+          isStarred={isStarred}
+          onToggleStar={() => onToggleStar(id)}
+        />
       )}
     </Link>
   );
 }
-
-
