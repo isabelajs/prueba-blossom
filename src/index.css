@@ -2,8 +2,10 @@
 
 @theme {
   --color-primary-100: #EEE3FF;
+  --color-primary-200: #D6BAFF;
   --color-primary-600: #8054C7 ;
   --color-primary-700: #5A3696;
+  --color-primary-900: #3B2463;
   --color-secondary-600: #63D838;
   --color-text-600: #1F2937;
 
