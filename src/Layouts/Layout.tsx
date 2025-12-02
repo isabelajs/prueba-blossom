@@ -1,39 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import CharactersPage from "../pages/CharactersPage";
 import { useParams, useNavigate } from "react-router-dom";
 import CharacterDetailPage from "../pages/CharacterDetailPage";
-import type { CharacterInterface } from "../interfaces/Character";
+import { useCharacters } from "../hooks/useCharacters";
 
 const Layout = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Custom hook maneja toda la lógica de personajes, paginación y búsqueda
+  const {
+    characters,
+    loading,
+    error,
+    loadNextPage,
+    isLoadingMore,
+    hasNextPage,
+    searchCharacters,
+    applyFilters,
+  } = useCharacters();
+
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
     id ? parseInt(id) : null
   );
-  const [characters, setCharacters] = useState<CharacterInterface[]>([]);
   const [starredIds, setStarredIds] = useState<Set<number>>(new Set());
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch characters data
-  useEffect(() => {
-    fetch("https://rickandmortyapi.com/api/character")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch characters");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setCharacters(data.results);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching characters:", error);
-        setError(error.message);
-        setLoading(false);
-      });
-  }, []);
 
   const handleSelectCharacter = (characterId: number) => {
     setSelectedCharacterId(characterId);
@@ -106,6 +96,11 @@ const Layout = () => {
           onSelectCharacter={handleSelectCharacter}
           onToggleStar={handleToggleStar}
           selectedCharacterId={selectedCharacterId}
+          onLoadMore={loadNextPage}
+          isLoadingMore={isLoadingMore}
+          hasNextPage={hasNextPage}
+          onSearch={searchCharacters}
+          onFilterChange={applyFilters}
         />
       </div>
 

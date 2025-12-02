@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import type { CharacterInterface } from "../interfaces/Character";
 import Search from "../components/Search";
 import ResumenCard from "../components/ResumenCard";
+import FilterComponent from "../components/FilterComponent";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { useIntersectionObserver } from "../hooks/useIntersectionObserver";
+import { useCharactersPage } from "../hooks/useCharactersPage";
 
 interface CharactersPageProps {
   characters: CharacterInterface[];
@@ -10,6 +12,11 @@ interface CharactersPageProps {
   onSelectCharacter?: (id: number) => void;
   onToggleStar: (id: number) => void;
   selectedCharacterId?: number | null;
+  onLoadMore: () => void;
+  isLoadingMore: boolean;
+  hasNextPage: boolean;
+  onSearch: (query: string) => void;
+  onFilterChange: (filter: { species?: string; status?: string }) => void;
 }
 
 const CharactersPage = ({ 
@@ -17,55 +24,70 @@ const CharactersPage = ({
   starredIds, 
   onSelectCharacter, 
   onToggleStar,
-  selectedCharacterId 
+  selectedCharacterId,
+  onLoadMore,
+  isLoadingMore,
+  hasNextPage,
+  onSearch,
+  onFilterChange
 }: CharactersPageProps) => {
-  const [filteredCharacters, setFilteredCharacters] = useState<CharacterInterface[]>(characters);
-  const navigate = useNavigate();
+  // Custom hook maneja toda la lógica
+  const {
+    starredCharacters,
+    regularCharacters,
+    isFilterOpen,
+    setIsFilterOpen,
+    handleSearch,
+    handleFilter,
+    handleApplyFilters,
+    handleCharacterClick,
+    isLocalFilterActive,
+    currentFilters,
+  } = useCharactersPage({
+    characters,
+    starredIds,
+    onSearch,
+    onFilterChange,
+    onSelectCharacter,
+  });
 
-  // Update filtered characters when characters prop changes
-  useEffect(() => {
-    setFilteredCharacters(characters);
-  }, [characters]);
-
-  const handleSearch = (value: string) => {
-    const filtered = characters.filter((character) =>
-      character.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredCharacters(filtered);
-  };
-
-  const handleFilter = () => {
-    console.log("Filter button clicked");
-    // Aquí puedes agregar la lógica de filtros
-  };
-
-  const handleCharacterClick = (id: number, e: React.MouseEvent) => {
-    // Prevenir navegación si es click en el botón de favoritos
-    if ((e.target as HTMLElement).closest('button')) {
-      return;
-    }
-
-    if (onSelectCharacter) {
-      // Desktop: actualiza el detalle sin navegar
-      onSelectCharacter(id);
-    } else {
-      // Mobile: navega a otra página
-      navigate(`/character/${id}`);
-    }
-  };
-
-  const starredCharacters = filteredCharacters.filter((char) =>
-    starredIds.has(char.id)
-  );
-  const regularCharacters = filteredCharacters.filter(
-    (char) => !starredIds.has(char.id)
-  );
+  // Intersection Observer para scroll infinito
+  // IMPORTANTE: Cuando hay filtro local activo (starred/others), NO cargar más páginas
+  // porque el filtro local solo funciona sobre datos ya cargados.
+  // Solo cargar más páginas cuando NO hay filtro local activo.
+  const shouldEnableObserver = 
+    hasNextPage &&           // Hay más páginas disponibles
+    !isLoadingMore &&        // No está cargando actualmente
+    !isLocalFilterActive;    // NO hay filtro local activo (starred/others)
+  
+  const { ref: observerRef } = useIntersectionObserver({
+    onIntersect: onLoadMore,
+    enabled: shouldEnableObserver,
+    threshold: 0.1,
+  });
 
   return (
     <div className="space-y-6 px-6 py-10 lg:px-4">
       <h1 className="text-2xl font-bold text-gray-800">Rick and Morty List</h1>
 
-      <Search onSearch={handleSearch} onFilter={handleFilter} />
+      {/* Search wrapper con position relative para el dropdown */}
+      <div className="relative">
+        <Search 
+          onSearch={handleSearch} 
+          onFilter={handleFilter}
+          isFilterOpen={isFilterOpen}
+        />
+        
+        {/* Filter Component - dropdown debajo del search */}
+        {isFilterOpen && (
+          <FilterComponent 
+            key={`${currentFilters.characterType}-${currentFilters.species}`}
+            onClose={() => {setIsFilterOpen(false)}}
+            onApplyFilters={handleApplyFilters}
+            initialFilters={currentFilters}
+          />
+        )}
+      </div>
 
       {/* Starred Characters Section */}
       {starredCharacters.length > 0 && (
@@ -78,7 +100,7 @@ const CharactersPage = ({
           <div className="overflow-hidden">
             {starredCharacters.map((character) => (
               <div
-                key={character.id}
+                key={`starred-${character.id}`}
                 onClick={(e) => handleCharacterClick(character.id, e)}
                 className={`cursor-pointer transition-colors ${
                   selectedCharacterId === character.id ? 'bg-primary-100 rounded-lg mt-2' : 'bg-white hover:bg-primary-50'
@@ -114,7 +136,7 @@ const CharactersPage = ({
         <div className=" overflow-hidden">
           {regularCharacters.map((character) => (
             <div
-              key={character.id}
+              key={`regular-${character.id}`}
               onClick={(e) => handleCharacterClick(character.id, e)}
               className={`cursor-pointer transition-colors ${
                 selectedCharacterId === character.id ? 'bg-primary-100 rounded-lg mt-2' : 'bg-white hover:bg-primary-50'
@@ -143,6 +165,13 @@ const CharactersPage = ({
           </div>
         )}
       </section>
+
+      {/* Scroll Trigger para infinite scroll */}
+      {hasNextPage && (
+        <div ref={observerRef} className="py-4">
+          {isLoadingMore && <LoadingSpinner />}
+        </div>
+      )}
     </div>
   );
 };
