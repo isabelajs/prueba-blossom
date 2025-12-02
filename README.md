@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# Rick & Morty Character Explorer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación web desarrollada con React y TypeScript para explorar personajes de la serie Rick & Morty utilizando su API GraphQL.
 
-Currently, two official plugins are available:
+## 🚀 Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Exploración de Personajes**: Lista paginada de personajes.
+- **Búsqueda**: Filtrado de personajes por nombre.
+- **Detalle de Personaje**: Vista detallada con información específica.
+- **Favoritos**: Funcionalidad para marcar personajes como favoritos.
+- **Optimización**:
+  - **Caching**: Implementación de caché en memoria (TTL 30 min) para minimizar peticiones a la API.
+  - **Debounce**: Búsqueda optimizada para evitar saturación de peticiones.
+- **Estilos**: Diseño responsivo utilizando TailwindCSS.
+- **GraphQL**: Cliente personalizado ligero para comunicar con la API.
 
-## React Compiler
+## 🛠️ Tecnologías
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Core**: React 18, TypeScript, Vite
+- **Estilos**: TailwindCSS 4
+- **Routing**: React Router DOM 7
+- **Iconos**: React Icons
+- **Gestión de Paquetes**: Bun (recomendado) / NPM
 
-## Expanding the ESLint configuration
+## 📋 Prerrequisitos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Necesitas tener instalado:
+- [Node.js](https://nodejs.org/) (v18 o superior)
+- [Bun](https://bun.sh/) (Opcional, pero recomendado ya que el proyecto incluye `bun.lock`)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🔧 Instalación
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. Clona el repositorio:
+   ```bash
+   git clone <url-del-repositorio>
+   cd rick-morty-prueba
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Instala las dependencias:
+
+   **Usando Bun (Recomendado):**
+   ```bash
+   bun install
+   ```
+
+   **Usando NPM:**
+   ```bash
+   npm install
+   ```
+
+## ▶️ Ejecución
+
+Para iniciar el servidor de desarrollo:
+
+**Bun:**
+```bash
+bun dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**NPM:**
+```bash
+npm run dev
+```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+La aplicación estará disponible en `http://localhost:5173`.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 📦 Construcción (Build)
+
+Para generar la versión de producción:
+
+```bash
+bun run build
+# o
+npm run build
+```
+
+Para previsualizar la build:
+
+```bash
+bun run preview
+# o
+npm run preview
+```
+
+## 📂 Estructura del Proyecto
+
+```
+src/
+├── components/   # Componentes UI reutilizables
+├── helpers/      # Utilidades (debounce, etc.)
+├── hooks/        # Custom hooks (lógica de negocio y UI)
+├── interfaces/   # Definiciones de tipos TypeScript
+├── Layouts/      # Estructuras de página
+├── pages/        # Vistas principales (Rutas)
+├── services/     # Capa de servicios
+│   ├── cache/    # Lógica de caché en memoria
+│   ├── character/# Servicios específicos de personajes
+│   └── graphql/  # Cliente GraphQL genérico
+└── App.tsx       # Componente raíz y configuración de rutas
 ```
