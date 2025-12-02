@@ -9,20 +9,21 @@ import type { CharacterInterface } from "../interfaces/Character";
 
 interface CharacterDetailPageProps {
   character: CharacterInterface;
+  isStarred: boolean;
+  onToggleStar: (id: number) => void;
   showBackButton?: boolean;
   onBack?: () => void;
 }
 
 const CharacterDetailPage = ({ 
-  character, 
+  character,
+  isStarred,
+  onToggleStar,
   showBackButton = true,
   onBack
 }: CharacterDetailPageProps) => {
 
   const navigate = useNavigate();
-  
-
- 
   
   const handleBackClick = () => {
     if (onBack) {
@@ -32,9 +33,8 @@ const CharacterDetailPage = ({
     }
   };
 
-
   const handleToggleStar = () => {
-    // TODO: Implement toggle star
+    onToggleStar(character.id);
   };
 
 
@@ -68,7 +68,7 @@ const CharacterDetailPage = ({
           />
 
           <ButtonStarred
-            isStarred={character.isStarred}
+            isStarred={isStarred}
             onToggleStar={handleToggleStar}
             classNameButton="absolute bottom-0 right-[-15px] bg-white rounded-full w-8 h-8 flex items-center justify-center !p-0"
           />

@@ -17,5 +17,4 @@ export interface CharacterInterface {
   episode: string[];
   url: string;
   created: string;
-  isStarred: boolean;
 }
