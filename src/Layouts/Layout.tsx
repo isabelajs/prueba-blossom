@@ -4,11 +4,22 @@ import { useParams, useNavigate } from "react-router-dom";
 import CharacterDetailPage from "../pages/CharacterDetailPage";
 import { useCharacters } from "../hooks/useCharacters";
 
+/**
+ * Layout component for the character browser application.
+ * 
+ * - Renders a split view on desktop: character list pane and a detail pane.
+ * - On mobile, only one pane is visible at a time (either list or detail).
+ * - Handles character selection, starring/un-starring, navigation, and state transitions.
+ */
 const Layout = () => {
+  // Obtain character ID from route params (if present)
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // Custom hook maneja toda la lógica de personajes, paginación y búsqueda
+  /**
+   * Custom hook to manage fetching characters, searching, filtering, pagination, etc.
+   * Returns character data, loading/error states, and manipulation callbacks.
+   */
   const {
     characters,
     loading,
@@ -20,14 +31,29 @@ const Layout = () => {
     applyFilters,
   } = useCharacters();
 
+  /**
+   * selectedCharacterId: The currently selected character (by ID), 
+   * initialized from the URL param if present.
+   */
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
     id ? parseInt(id) : null
   );
+
+  /**
+   * starredIds: Set of starred character IDs.
+   */
   const [starredIds, setStarredIds] = useState<Set<number>>(new Set());
 
+  /**
+   * Handler for selecting a character.
+   * - Updates selection state.
+   * - On desktop, updates browser URL via history API without page reload.
+   * - On mobile, uses react-router navigate.
+   * @param characterId The selected character's ID
+   */
   const handleSelectCharacter = (characterId: number) => {
     setSelectedCharacterId(characterId);
-    // Actualizar la URL en desktop sin recargar la página
+    // On desktop, update URL without navigation to allow preview panel update
     if (window.innerWidth >= 1024) {
       window.history.pushState({}, "", `/character/${characterId}`);
     } else {
@@ -35,11 +61,20 @@ const Layout = () => {
     }
   };
 
+  /**
+   * Handler for returning from the detail view to the main list.
+   * - Clears the current selection.
+   * - Navigates to the main list route.
+   */
   const handleBack = () => {
     setSelectedCharacterId(null);
     navigate("/");
   };
 
+  /**
+   * Handler for toggling a character as starred/unstarred.
+   * @param id The character's ID
+   */
   const handleToggleStar = (id: number) => {
     setStarredIds((prev) => {
       const newSet = new Set(prev);
@@ -52,12 +87,14 @@ const Layout = () => {
     });
   };
 
-  // Get selected character
+  // Locate the currently selected character object by ID (if any)
   const selectedCharacter = selectedCharacterId
     ? characters.find((char) => char.id === selectedCharacterId)
     : null;
 
-  // Loading state
+  // ------------- UI State Handling (Loading/Error/Content) -------------
+
+  // Render loading spinner while character data is loading
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -69,7 +106,7 @@ const Layout = () => {
     );
   }
 
-  // Error state
+  // Render error state if data fetching failed
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -81,9 +118,11 @@ const Layout = () => {
     );
   }
 
+  // ------------- Main Layout Rendering -------------
+
   return (
     <div className="lg:grid lg:grid-cols-[375px_1fr] lg:h-screen lg:overflow-hidden">
-      {/* Lista - Siempre visible en desktop, solo visible en mobile cuando no hay selección */}
+      {/* Sidebar/List: Always visible on desktop; on mobile, only when NO character is selected */}
       <div
         className={`
         ${selectedCharacterId ? "hidden lg:block" : "block"} 
@@ -104,7 +143,7 @@ const Layout = () => {
         />
       </div>
 
-      {/* Detalle - Solo visible cuando hay selección */}
+      {/* Detail pane: Only visible when a character is selected */}
       <div
         className={`
         ${!selectedCharacterId ? "hidden" : "block"}

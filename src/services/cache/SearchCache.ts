@@ -1,5 +1,6 @@
 /**
- * Estructura de datos cacheados
+ * Structure for cached data entries
+ * - Stores the cached value and the time it was cached.
  */
 interface CachedData<T> {
   data: T;
@@ -7,31 +8,37 @@ interface CachedData<T> {
 }
 
 /**
- * Cache simple en memoria para resultados de búsqueda
- * - Guarda resultados en Map (memoria)
- * - TTL de 30 minutos por defecto
- * - Se pierde al recargar la página
+ * Simple in-memory cache for search results.
+ *
+ * - Uses a Map to store cached search results in memory.
+ * - Time-to-live (TTL) is 30 minutes by default (configurable in constructor).
+ * - Cache is lost if the page is reloaded (not persistent).
  */
 class SearchCache {
   private cache = new Map<string, CachedData<unknown>>();
   private maxAge: number;
 
+  /**
+   * @param maxAgeMinutes Maximum age for cache entries, in minutes. Default is 30.
+   */
   constructor(maxAgeMinutes: number = 30) {
-    this.maxAge = maxAgeMinutes * 60 * 1000; // Convertir a ms
+    this.maxAge = maxAgeMinutes * 60 * 1000; // Convert to milliseconds
   }
 
   /**
-   * Obtiene un valor del cache
-   * Retorna null si no existe o ha expirado
+   * Retrieves a value from the cache.
+   * Returns null if the entry does not exist or has expired.
+   * @param key Cache key (string)
+   * @returns The cached data if present and valid, otherwise null
    */
   get<T>(key: string): T | null {
     const cached = this.cache.get(key);
-    
+
     if (!cached) {
       return null;
     }
 
-    // Verificar si ha expirado
+    // Check if entry has expired
     const age = Date.now() - cached.timestamp;
     if (age > this.maxAge) {
       this.cache.delete(key);
@@ -42,7 +49,9 @@ class SearchCache {
   }
 
   /**
-   * Guarda un valor en el cache
+   * Stores a value in the cache.
+   * @param key Cache key (string)
+   * @param data Data to store
    */
   set<T>(key: string, data: T): void {
     this.cache.set(key, {
@@ -52,13 +61,13 @@ class SearchCache {
   }
 
   /**
-   * Limpia todo el cache
+   * Clears the entire cache.
    */
   clear(): void {
     this.cache.clear();
   }
 }
 
-// Singleton: una única instancia compartida
-export const searchCache = new SearchCache(30); // 30 minutos
+// Singleton: provides a single shared instance of SearchCache
+export const searchCache = new SearchCache(30); // 30 minutes
 
